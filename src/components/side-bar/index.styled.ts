@@ -56,3 +56,7 @@ export const InputWrapper = styled.div`
 export const Input = styled.input`
   width: 100px;
 `;
+
+export const InputTitle = styled.div`
+  color: silver;
+`;

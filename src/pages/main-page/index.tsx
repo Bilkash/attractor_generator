@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { MouseEventHandler, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { notification } from "antd";
 import { useStore } from "effector-react";
@@ -20,8 +20,6 @@ export default function MainPage () {
 	const startPoint = useStore($startPoint);
 	const points = useStore($points);
 
-	console.log(points);
-
 	const openNotificationLessPoint = () => {
 		api.info({
 			message: "Less point",
@@ -29,7 +27,7 @@ export default function MainPage () {
 		});
 	};
 
-	const handleClick = (event: MouseEvent) => {
+	const handleClick:MouseEventHandler<HTMLCanvasElement> = (event: React.MouseEvent<HTMLCanvasElement>) => {
 		const canvas = canvasRef.current;
 		if (!startPoint) {
 			if (canvas) {
@@ -53,33 +51,6 @@ export default function MainPage () {
 		}
 	};
 
-	const draw = () => {
-		const canvas = canvasRef.current;
-		const ctx = canvas.getContext("2d");
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		points.forEach((point, index) => {
-			ctx.beginPath();
-			ctx.fillStyle = "#fff";
-			ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
-			ctx.fill();
-
-			if (!point.start) {
-				ctx.font = "11px Arial";
-				ctx.fillStyle = "#fff";
-				ctx.fillText(point.attractPoint ? "" : `${index + 1}`, point.x + 10, point.y - 10);
-			} else {
-				ctx.font = "11px Arial";
-				ctx.strokeStyle = "#ff0000";
-				ctx.fillStyle = "red";
-				ctx.fillText("Start", point.x + 10, point.y - 10);
-				if (!startPoint) {
-					setStartPointFlag();
-					setStartPoint({ x: point.x, y: point.y, start: true });
-				}
-			}
-		});
-	};
-
 	useEffect(() => {
 		if (!startPoint) {
 			const oldPoints = [...points];
@@ -99,7 +70,7 @@ export default function MainPage () {
 				points.forEach((point, index) => {
 					ctx.beginPath();
 					ctx.fillStyle = "#fff";
-					ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
+					ctx.arc(point.x, point.y, 1, 0, 2 * Math.PI);
 					ctx.fill();
 
 					if (!point.start) {
@@ -127,7 +98,7 @@ export default function MainPage () {
 		<>
 			{contextHolder}
 			<Wrapper>
-				<SideBar draw={() => draw()}/>
+				<SideBar/>
 
 				<CanvasWrapper>
 					<canvas

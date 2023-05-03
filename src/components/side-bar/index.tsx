@@ -1,21 +1,20 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useGate, useStore } from "effector-react";
 import { notification } from "antd";
 
 import {
-	$generatedPoints,
 	$iterations,
 	$points, $startPoint,
 	$startPointFlag,
-	canvasGate, setGeneratedPoints, setIterations,
+	canvasGate, setIterations,
 	setPoints,
 	setStartPoint,
 	setStartPointFlag
 } from "../../effector/model";
-import { SideWrapper, Button, InputWrapper, Input } from "./index.styled";
+import { SideWrapper, Button, InputWrapper, Input, InputTitle } from "./index.styled";
 import { Point } from "../../types";
 
-export default function SideBar (draw: () => void) {
+export default function SideBar () {
 	useGate(canvasGate);
 	const [api, contextHolder] = notification.useNotification();
 	const startPointFlag = useStore($startPointFlag);
@@ -42,13 +41,10 @@ export default function SideBar (draw: () => void) {
 	}
 
 	const generation = () => {
-		const spikes = points.slice(0, points.filter(it => !it.attractPoint).length);
+		const spikes = points.slice(0, points.filter(it => !it.attractPoint && !it.start).length);
 
 		let currentIteration = 0;
 		const interval = setInterval(() => {
-			console.log(currentIteration >= iterations);
-			console.log({ currentIteration, iterations });
-
 			if (currentIteration >= iterations) {
 				clearInterval(interval);
 				return;
@@ -58,9 +54,8 @@ export default function SideBar (draw: () => void) {
 			const newPoint = getMidPoint(p1, p2);
 			points.push(newPoint);
 			setPoints([...points]);
-			draw();
 			currentIteration+=1;
-		}, 100);
+		}, 10);
 	};
 
 	return (
@@ -82,12 +77,24 @@ export default function SideBar (draw: () => void) {
 					Remove All Points
 				</Button>
 
+				<InputTitle>
+					Iterations:
+				</InputTitle>
+
 				<InputWrapper>
-					<Button onClick={() => setIterations(iterations-100)}>-100</Button>
+					<Button
+						disabled={iterations === 0}
+						onClick={() => setIterations(iterations < 0 ? 0 : iterations-100)}>-100
+					</Button>
 					<Input
 						type={"number"}
 						value={iterations}
-						onChange={(e) => setIterations(+e.currentTarget.value)}
+						onChange={(e) => {
+							const value = +e.currentTarget.value;
+							if (value >= 0) {
+								setIterations(value);
+							}
+						}}
 					/>
 					<Button onClick={() => setIterations(iterations+100)}>+100</Button>
 				</InputWrapper>
